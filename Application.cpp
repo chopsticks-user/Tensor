@@ -11,9 +11,9 @@ int main(int argc, char **argv)
 
     tensor<int, 2, 3, 4, 5> t{};
 
-    t._data[11] = 1111;
+    t._data[119] = 1111;
 
-    std::cout << t(-2, 0, 2, 1) << '\n';
+    std::cout << t(-1, -1, -1, -1) << '\n';
 
     return 0;
 }

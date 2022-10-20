@@ -5,8 +5,23 @@
 #include <tuple>
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 #define ALLOW_NEGATIVE_INDEX 1
+
+namespace exception
+{
+    std::string exception_message(std::string &&error_message)
+    {
+        std::string full_error_message{__FILE__};
+        full_error_message += ':';
+        full_error_message += std::to_string(__LINE__ + 4);
+        full_error_message += ": ";
+        full_error_message += error_message;
+        return full_error_message;
+    }
+
+}
 
 namespace container
 {
@@ -74,17 +89,16 @@ namespace container
                 std::vector<container_size_type> index_list{indices...};
                 container_size_type n_indices = index_list.size();
 
-                if (n_indices > this->order())
-                    throw std::runtime_error("Too many arguments.");
+                if (n_indices != this->order())
+                    throw std::runtime_error(exception::exception_message("The number of indices must be equal to the tensor's order."));
 
                 container_size_type index_1d = 0;
                 container_size_type size_1d = this->size();
+                container_size_type current_dim = 0;
 
-                if (n_indices == this->order())
-                    for (container_size_type i = 0; i < n_indices; ++i)
-                        index_1d += index_check(index_list[i], _dims[i]) * (size_1d /= _dims[i]);
+                for (current_dim = 0; current_dim < n_indices; ++current_dim)
+                    index_1d += index_check(index_list[current_dim], _dims[current_dim]) * (size_1d /= _dims[current_dim]);
 
-                
                 return _data[index_1d];
             }
 
@@ -94,6 +108,7 @@ namespace container
             }
 
             std::vector<data_type> _data;
+
         protected:
             std::vector<container_size_type> _dims{dims...};
         };
