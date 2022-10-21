@@ -7,9 +7,13 @@ using namespace container;
 
 int main(int argc, char **argv)
 {
-    tensor<double> t{};
+    tensor<double, 2, 3, 5> t1{};
+    t1(0, 0, 0) = 99;
+    tensor<double> t2{t1};
 
-    std::cout << t.order() << '\n';
+    tensor<double, 2, 3, 5> t3{std::move(t2)};
+
+    std::cout << t2.shape(0) << '\n';
 
     return 0;
 }

@@ -16,12 +16,13 @@ namespace container
     template <typename data_type, size_type... dims>
     class tensor
     {
-    public:
-        using is_dynamic_tensor = std::is_same<tensor, tensor<data_type>>;
+        typedef tensor<data_type> dynamic_tensor;
+        using is_dynamic_tensor = std::is_same<tensor, dynamic_tensor>;
+
+        // template <typename rhs_data_type, size_type... rhs_dims>
+        // friend class tensor<rhs_data_type, rhs_dims...>;
 
     public:
-        friend class tensor<data_type>;
-
         tensor() : _dims{dims...}
         {
             if constexpr (is_dynamic_tensor::value == false)
@@ -36,14 +37,48 @@ namespace container
             this->_initialize();
         }
 
+        tensor(const tensor &rhs_tensor) = default;
+
+        template <size_type... rhs_dims>
+        tensor(const tensor<data_type, rhs_dims...> &rhs_tensor) : _dims{dims...}
+        {
+            this->_diff_type_copy_initialize(rhs_tensor);
+        }
+
+        tensor(tensor &&rhs_tensor) = default;
+
+        template <size_type... rhs_dims>
+        tensor(tensor<data_type, rhs_dims...> &&rhs_tensor) : _dims{dims...}
+        {
+            this->_diff_type_move_initialize(std::move(rhs_tensor));
+        }
+
+        tensor &operator=(const tensor &rhs_tensor) = default;
+
+        template <size_type... rhs_dims>
+        tensor &operator=(const tensor<data_type, rhs_dims...> &rhs_tensor)
+        {
+
+        }
+
+        tensor &operator=(tensor &&rhs_tensor) = default;
+
+        template <size_type... rhs_dims>
+        tensor &operator=(tensor<data_type, rhs_dims...> &&rhs_tensor)
+        {
+
+        }
+
+        ~tensor() = default;
+
         size_type order() const noexcept
         {
-            return _dims.size();
+            return this->_dims.size();
         }
 
         size_type size() const noexcept
         {
-            return _data.size();
+            return this->_data.size();
         }
 
         std::vector<size_type> shape() const noexcept
@@ -53,7 +88,17 @@ namespace container
 
         size_type shape(size_type dim_index) const
         {
-            return _dims[details::index_check(dim_index, _dims.size())];
+            return this->_dims[details::index_check(dim_index, this->_dims.size())];
+        }
+
+        auto begin() const noexcept
+        {
+            return this->_data.begin();
+        }
+
+        auto end() const noexcept
+        {
+            return this->_data.end();
         }
 
         template <typename... T>
@@ -72,7 +117,7 @@ namespace container
             for (current_dim = 0; current_dim < n_indices; ++current_dim)
                 index_1d += details::index_check(index_list[current_dim], _dims[current_dim]) * (size_1d /= _dims[current_dim]);
 
-            return _data[index_1d];
+            return this->_data[index_1d];
         }
 
         friend std::ostream &operator<<(std::ostream &os, const tensor &rhs_tensor)
@@ -87,11 +132,39 @@ namespace container
         void _initialize()
         {
             size_type size_1d = 1;
-            std::for_each(_dims.begin(), _dims.end(), [&](int size)
+            std::for_each(this->_dims.begin(), this->_dims.end(), [&](int size)
                           { if (size <= 0)
                                     throw std::runtime_error("dim <= 0");
-                                size_1d *= size; });    // exception: dim <= 0
-            _data.resize(size_1d); // exception: bad_alloc
+                                size_1d *= size; });          // exception: dim <= 0
+            this->_data.resize(size_1d); // exception: bad_alloc
+        }
+
+        template <size_type... rhs_dims>
+        void _diff_type_copy_initialize(const tensor<data_type, rhs_dims...> &rhs_tensor)
+        {
+            auto rhs_dim_vector = rhs_tensor.shape();
+            if constexpr (is_dynamic_tensor::value == false)
+                if (!std::equal(rhs_dim_vector.begin(), rhs_dim_vector.end(),
+                                this->_dims.begin(), this->_dims.end()))
+                    throw std::runtime_error("Dimensions mismatch.");
+
+            this->_dims = std::move(rhs_dim_vector);
+            this->_data.resize(rhs_tensor.size());
+            std::copy(rhs_tensor.begin(), rhs_tensor.end(), this->_data.begin());
+        }
+
+        template <size_type... rhs_dims>
+        void _diff_type_move_initialize(tensor<data_type, rhs_dims...> &&rhs_tensor)
+        {
+            auto rhs_dim_vector = std::move(rhs_tensor.shape());
+            if constexpr (is_dynamic_tensor::value == false)
+                if (!std::equal(rhs_dim_vector.begin(), rhs_dim_vector.end(),
+                                this->_dims.begin(), this->_dims.end()))
+                    throw std::runtime_error("Dimensions mismatch.");
+
+            this->_dims = std::move(rhs_dim_vector);
+            this->_data.resize(rhs_tensor.size());
+            std::move(rhs_tensor.begin(), rhs_tensor.end(), this->_data.begin());
         }
     };
 
