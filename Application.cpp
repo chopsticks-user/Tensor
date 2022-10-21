@@ -7,9 +7,9 @@ using namespace container;
 
 int main(int argc, char **argv)
 {
-    tensor<double> t{3, 3, 3, 3, 3, 3};
+    tensor<double> t{};
 
-    std::cout << t.size() << '\n';
+    std::cout << t.order() << '\n';
 
     return 0;
 }
