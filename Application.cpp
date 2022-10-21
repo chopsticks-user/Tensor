@@ -1,19 +1,15 @@
 #include <iostream>
-#include "Tensor.hpp"
+#include "src/Container.hpp"
 #include <tuple>
 #include <type_traits>
 
-template <typename T, ssize_t... dims>
-using tensor = container::details::tensor_base_static<T, dims...>;
+using namespace container;
 
 int main(int argc, char **argv)
 {
+    tensor<double> t{3, 3, 3, 3, 3, 3};
 
-    tensor<int, 2, 3, 4, 5> t{};
-
-    t._data[119] = 1111;
-
-    std::cout << t(-1, -1, -1, -1) << '\n';
+    std::cout << t.size() << '\n';
 
     return 0;
 }
