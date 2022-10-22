@@ -11,9 +11,11 @@ int main(int argc, char **argv)
     t1(0, 0, 0) = 99;
     tensor<double> t2{t1};
 
-    tensor<double, 2, 3, 5> t3{std::move(t2)};
+    tensor<double, 2, 3, 55> t3{};
 
-    std::cout << t2.shape(0) << '\n';
+    t2 = t3;
+
+    std::cout << t2.size() << '\n';
 
     return 0;
 }

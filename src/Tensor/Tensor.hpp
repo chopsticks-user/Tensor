@@ -58,7 +58,8 @@ namespace container
         template <size_type... rhs_dims>
         tensor &operator=(const tensor<data_type, rhs_dims...> &rhs_tensor)
         {
-
+            this->_diff_type_copy_assgin(rhs_tensor);
+            return *this;
         }
 
         tensor &operator=(tensor &&rhs_tensor) = default;
@@ -66,7 +67,8 @@ namespace container
         template <size_type... rhs_dims>
         tensor &operator=(tensor<data_type, rhs_dims...> &&rhs_tensor)
         {
-
+            this->_diff_type_move_assgin(rhs_tensor);
+            return *this;
         }
 
         ~tensor() = default;
@@ -142,7 +144,7 @@ namespace container
         template <size_type... rhs_dims>
         void _diff_type_copy_initialize(const tensor<data_type, rhs_dims...> &rhs_tensor)
         {
-            auto rhs_dim_vector = rhs_tensor.shape();
+            auto rhs_dim_vector = std::move(rhs_tensor.shape());
             if constexpr (is_dynamic_tensor::value == false)
                 if (!std::equal(rhs_dim_vector.begin(), rhs_dim_vector.end(),
                                 this->_dims.begin(), this->_dims.end()))
@@ -164,6 +166,38 @@ namespace container
 
             this->_dims = std::move(rhs_dim_vector);
             this->_data.resize(rhs_tensor.size());
+            std::move(rhs_tensor.begin(), rhs_tensor.end(), this->_data.begin());
+        }
+
+        template <size_type... rhs_dims>
+        void _diff_type_copy_assgin(const tensor<data_type, rhs_dims...> &rhs_tensor)
+        {
+            auto rhs_dim_vector = std::move(rhs_tensor.shape());
+            if (!std::equal(rhs_dim_vector.begin(), rhs_dim_vector.end(),
+                            this->_dims.begin(), this->_dims.end()))
+            {
+                if constexpr (is_dynamic_tensor::value == false)
+                    throw std::runtime_error("Dimensions mismatch.");
+                this->_data.resize(rhs_tensor.size());
+            }
+
+            this->_dims = std::move(rhs_dim_vector);
+            std::copy(rhs_tensor.begin(), rhs_tensor.end(), this->_data.begin());
+        }
+
+        template <size_type... rhs_dims>
+        void _diff_type_move_assign(tensor<data_type, rhs_dims...> &&rhs_tensor)
+        {
+            auto rhs_dim_vector = std::move(rhs_tensor.shape());
+            if (!std::equal(rhs_dim_vector.begin(), rhs_dim_vector.end(),
+                            this->_dims.begin(), this->_dims.end()))
+            {
+                if constexpr (is_dynamic_tensor::value == false)
+                    throw std::runtime_error("Dimensions mismatch.");
+                this->_data.resize(rhs_tensor.size());
+            }
+
+            this->_dims = std::move(rhs_dim_vector);
             std::move(rhs_tensor.begin(), rhs_tensor.end(), this->_data.begin());
         }
     };
