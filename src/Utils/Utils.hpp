@@ -1,9 +1,9 @@
-#ifndef CONTAINER_UTILS_HPP
-#define CONTAINER_UTILS_HPP
+#ifndef MATH_ALGEBRA_LINEAR_UTILS_HPP
+#define MATH_ALGEBRA_LINEAR_UTILS_HPP
 
 #include <stdexcept>
 
-namespace container
+namespace math::algebra::linear
 {
 #if ALLOW_NEGATIVE_INDEX == 0
     typedef size_t size_type;
@@ -30,6 +30,6 @@ namespace container
         }
 #endif
     } // namespace details
-} // namespace container
+} // namespace math::algebra::linear
 
-#endif // CONTAINER_UTILS_HPP
+#endif // MATH_ALGEBRA_LINEAR_UTILS_HPP

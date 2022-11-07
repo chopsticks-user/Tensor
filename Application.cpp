@@ -1,21 +1,10 @@
-#include <iostream>
-#include "src/Container.hpp"
-#include <tuple>
-#include <type_traits>
+#include "src/LinearAlgebra.hpp"
 
-using namespace container;
+using namespace math::algebra::linear;
 
 int main(int argc, char **argv)
 {
-    tensor<double, 2, 3, 5> t1{};
-    t1(0, 0, 0) = 99;
-    tensor<double> t2{t1};
-
-    tensor<double, 2, 3, 55> t3{};
-
-    t2 = t3;
-
-    std::cout << t2.size() << '\n';
+    tensor<double, 3, 3, 9, 5> t1;
 
     return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef TENSOR_HPP
-#define TENSOR_HPP
+#ifndef MATH_ALGEBRA_LINEAR_TENSOR_HPP
+#define MATH_ALGEBRA_LINEAR_TENSOR_HPP
 
 #include "../Config.hpp"
 #include "../Utils/Utils.hpp"
@@ -10,7 +10,7 @@
 #include <string>
 #include <type_traits>
 
-namespace container
+namespace math::algebra::linear
 {
     // template <typename data_type, size_type... dims, allocator>
     template <typename data_type, size_type... dims>
@@ -18,9 +18,6 @@ namespace container
     {
         typedef tensor<data_type> dynamic_tensor;
         using is_dynamic_tensor = std::is_same<tensor, dynamic_tensor>;
-
-        // template <typename rhs_data_type, size_type... rhs_dims>
-        // friend class tensor<rhs_data_type, rhs_dims...>;
 
     public:
         tensor() : _dims{dims...}
@@ -30,7 +27,7 @@ namespace container
         }
 
         template <typename... T>
-        tensor(T... init_dims) : _dims{init_dims...}
+        explicit tensor(T... init_dims) : _dims{init_dims...}
         {
             static_assert(is_dynamic_tensor::value == true,
                           "List initialization is for dynamic tensors only.");
@@ -202,6 +199,6 @@ namespace container
         }
     };
 
-} // namespace container
+} // namespace math::algebra::linear
 
-#endif // TENSOR_HPP
+#endif // MATH_ALGEBRA_LINEAR_TENSOR_HPP
